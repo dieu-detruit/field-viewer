@@ -41,5 +41,5 @@ auto loadfile(std::string filename)
         *image_itr = colormap(*field_itr, min, max);
     }
 
-    return std::make_tuple(header, image);
+    return std::make_tuple(header, image, field);
 }

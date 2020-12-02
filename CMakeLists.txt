@@ -23,6 +23,7 @@ foreach(EXEC_MAIN_SRC ${EXEC_MAIN_SRCS})
         ${EIGEN3_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIR}
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/external/cvui
         )
     target_link_libraries(${EXEC_NAME}
         ${OpenCV_LIBRARIES}
