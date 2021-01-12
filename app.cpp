@@ -29,12 +29,26 @@ constexpr int rgb_margin = 20;
 
 int main(int argc, char** argv)
 {
-    auto [header, image, field] = loadfile("../data/focus.abs");
 
+    if (argc < 2) {
+        std::cout << "Usage: plot [filename]" << std::endl;
+        return 1;
+    }
+
+    std::string input_filename;
+    input_filename = argv[1];
+    std::cout << "Input file: " << input_filename << std::endl;
+
+    auto [image, field] = loadImage(input_filename);
+
+    //auto info = loadInfo("../data/focus.info");
+
+    std::size_t N = image.cols;
+    int shrink_ratio = N / 512;
     std::vector<double> field_transposed(field.size());
-    for (int i = 0; i < header.N; ++i) {
-        for (int j = 0; j < header.M; ++j) {
-            field_transposed[header.N * i + j] = field[header.M * j + i];
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            field_transposed[N * i + j] = field[N * j + i];
         }
     }
     //double field_norm = *std::max_element(field.begin(), field.end()) - *std::min_element(field.begin(), field.end());
@@ -140,6 +154,8 @@ int main(int argc, char** argv)
             cv::rectangle(vprofile_image_rot, cv::Point(0, 0), cv::Point(image_width - 1, profile_width - 1), cv::Scalar{255, 255, 255}, cv::FILLED);
         }
 
+        std::cout << "profile_x: " << profile_x << ", profile_y: " << profile_y << std::endl;
+
         image_view.copyTo(image_cursor);
         cv::line(image_cursor, cv::Point(profile_x, 0), cv::Point(profile_x, image_width - 1), cv::Scalar{255, 255, 255});
         cv::line(image_cursor, cv::Point(0, profile_y), cv::Point(image_width - 1, profile_y), cv::Scalar{255, 255, 255});
@@ -149,8 +165,8 @@ int main(int argc, char** argv)
         cvui::image(frame, image_pos.x, image_pos.y, image_cursor);
 
         // プロファイル
-        std::vector<double> hprofile{field.begin() + header.N * profile_y, field.begin() + header.N * (profile_y + 1) - 1};
-        std::vector<double> vprofile{field_transposed.begin() + header.M * profile_x, field_transposed.begin() + header.M * (profile_x + 1) - 1};
+        std::vector<double> hprofile{field.begin() + N * shrink_ratio * profile_y, field.begin() + N * (shrink_ratio * profile_y + 1) - 1};
+        std::vector<double> vprofile{field_transposed.begin() + N * shrink_ratio * profile_x, field_transposed.begin() + N * (shrink_ratio * profile_x + 1) - 1};
         //double hprofile_norm = *std::max_element(hprofile.begin(), hprofile.end()) - *std::min_element(hprofile.begin(), hprofile.end());
         //double vprofile_norm = *std::max_element(vprofile.begin(), vprofile.end()) - *std::min_element(vprofile.begin(), vprofile.end());
 
@@ -164,7 +180,6 @@ int main(int argc, char** argv)
         cv::rotate(vprofile_image_rot, vprofile_image, cv::ROTATE_90_COUNTERCLOCKWISE);
         cvui::image(frame, image_pos.x, image_pos.y - profile_width - normal_margin, hprofile_image);
         cvui::image(frame, image_pos.x - profile_width - normal_margin, image_pos.y, vprofile_image);
-
 
         // 画面更新
         cvui::update();

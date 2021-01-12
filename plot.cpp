@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
     std::cout << "Input file: " << input_filename << std::endl;
 
-    auto [header, image, field] = loadfile(input_filename);
+    auto [image, field] = loadImage(input_filename);
 
     std::cout << "Output file: " << output_filename << std::endl;
 
